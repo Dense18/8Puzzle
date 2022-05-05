@@ -1,5 +1,11 @@
 import random
-class EightPuzzle:
+import copy
+from turtle import left
+
+from pandas import merge
+from Problem import *
+
+class EightPuzzle():
     UP = "UP"
     DOWN = "DOWN"
     LEFT = "LEFT"
@@ -8,15 +14,8 @@ class EightPuzzle:
     DIR = {"UP": -3, "DOWN": 3, "LEFT": -1, "RIGHT": 1}
 
     def __init__(self, initial_state, goal = (1,2,3,4,5,6,7,8,0)):
-        if(self.is_solvable(initial_state)):
-            self.initial_state = initial_state
-            self.goal = goal
-        else:
-            self.initial_state = initial_state
-            self.goal = goal
-
-            # print("Puzzle state is not solvable")
-            # return None
+        self.initial_state = initial_state
+        self.goal = goal
     
     def find_blank_square(self, state):
         try:
@@ -41,6 +40,11 @@ class EightPuzzle:
         return possible_actions
     
     def do_action(self, state, action):
+
+        # ##Check if action is not valid
+        # if (action not in self.get_possible_actions(state)):
+        #     return None
+
         blank_index = self.find_blank_square(state)
         updated_state = list(state)
 
@@ -48,7 +52,7 @@ class EightPuzzle:
 
         updated_state[blank_index], updated_state[move_index] = updated_state[move_index], updated_state[blank_index]
 
-        return updated_state
+        return tuple(updated_state)
 
     def is_goal(self, state):
         return state == self.goal
@@ -63,8 +67,72 @@ class EightPuzzle:
         
         return inv_count
     
+    def get_inversion_count_merge(self, state):
+        arr = list(copy.deepcopy(state))
+        inv_count = self.merge_sort(arr, 0, len(arr) - 1)
+        return inv_count
+    
+    def merge_sort(self, arr, left, right):
+
+        inv_count = 0
+
+        if (left < right):
+            mid = (left + right)//2
+
+            inv_count += self.merge_sort(arr, left, mid)
+            inv_count += self.merge_sort(arr, mid+1, right)
+            inv_count += self.merge(arr, left, mid, right)
+        
+        return inv_count
+            
+    def merge(self, arr, left, mid, right):
+        inv_count = 0
+
+        # n1 = mid - left + 1
+        # n2 = right - mid
+
+        # left_array = []
+        # right_array = []
+
+        # for i in range(n1):
+        #     left_array.append(arr[left + i])
+        
+        # for j in range(n2):
+        #     right_array.append(arr[mid + 1 + j])
+        
+        left_array = arr[left : mid + 1]
+        right_array = arr[mid + 1: right + 1]
+
+        k = left
+        i = j = 0
+
+        ##Merge temp arrays
+        while (i < len(left_array) and j < len(right_array)):
+            if (left_array[i] <= right_array[j]):
+                arr[k] = left_array[i]
+                i += 1
+            else:
+                arr[k] = right_array[j]
+                if(arr[k] != 0):
+                    inv_count += mid - left + 1 - i ##or len(left_array) - 1
+                j += 1
+            k+= 1
+                
+        ##Merge Remaining values if exist
+        while i < len(left_array):
+            arr[k] = left_array[i]
+            i += 1
+            k += 1
+        
+        while j < len(right_array):
+            arr[k] = right_array[j]
+            j += 1
+            k += 1
+        
+        return inv_count
+
     def is_solvable(self, state):
-        return self.get_inversion_count(state) % 2 == 0
+        return self.get_inversion_count_merge(state) % 2 == 0
     
     def generate_random_puzzle(self):
         state = [0,1,2,3,4,5,6,7, 8, 9]
@@ -86,5 +154,8 @@ class EightPuzzle:
 
             else:
                 print(value, end = " ")
-        print("-----------")
+    
+    ##Assume all cost are one between any state from a valid action
+    def path_cost(self, current_cost, state, action, new_state):
+        return current_cost + 1
 
