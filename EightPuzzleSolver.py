@@ -6,7 +6,7 @@ from queue import PriorityQueue
 def main():
     # state_str = str(input("Enter puzzle state (012345678):" ))
     # state = tuple(int(elem) for elem in state_str)
-    state = (1,2,6,3,8,0,5,7,4)
+    state = (0,8,2,3,1,7,5,6,4)
  
     puzzle = EightPuzzle(state)
 
@@ -92,7 +92,7 @@ def gasching(n):
     return total_move
 
 def Astar_algorithm(problem, heuristic, display = False):
-    start = Node(problem.initial_state)
+    start = Node(problem.state)
     
     count = 0
 

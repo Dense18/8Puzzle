@@ -1,6 +1,6 @@
 from EightPuzzle import *
 from Node import *
-from main import *
+from EightPuzzleSolver import *
 
 def test_gasching():
     state=(6,0,1,2,8,3,5,4,7)

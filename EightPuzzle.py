@@ -1,8 +1,5 @@
 import random
 import copy
-from turtle import left
-
-from pandas import merge
 from Problem import *
 
 class EightPuzzle():
@@ -13,10 +10,14 @@ class EightPuzzle():
 
     DIR = {"UP": -3, "DOWN": 3, "LEFT": -1, "RIGHT": 1}
 
-    def __init__(self, initial_state, goal = (1,2,3,4,5,6,7,8,0)):
-        self.initial_state = initial_state
+    def __init__(self, state, goal = (1,2,3,4,5,6,7,8,0)):
+        self.state = state
         self.goal = goal
+        self.onChangeListener = None
     
+    def setOnChangeListener(self, listener):
+        self.onChangeListener = listener
+
     def find_blank_square(self, state):
         try:
             return state.index(0)
@@ -40,11 +41,16 @@ class EightPuzzle():
         return possible_actions
     
     def do_action(self, state, action):
+        blank_index = self.find_blank_square(state)
+        updated_state = list(state)
 
-        # ##Check if action is not valid
-        # if (action not in self.get_possible_actions(state)):
-        #     return None
+        move_index = blank_index + self.DIR[action]
 
+        updated_state[blank_index], updated_state[move_index] = updated_state[move_index], updated_state[blank_index]
+        
+        return tuple(updated_state)
+
+    def move_action(self, state, action):
         blank_index = self.find_blank_square(state)
         updated_state = list(state)
 
@@ -52,11 +58,36 @@ class EightPuzzle():
 
         updated_state[blank_index], updated_state[move_index] = updated_state[move_index], updated_state[blank_index]
 
+        if (self.onChangeListener):
+            self.onChangeListener()
+        
         return tuple(updated_state)
-
+        
     def is_goal(self, state):
         return state == self.goal
+
+    def generate_random_puzzle(self):
+        state = [0,1,2,3,4,5,6,7,8]
+        while (True):
+            random.shuffle(state)
+            if (self.is_solvable(state)):
+                return state
+
+    def display(self, state):
+        for i in range(len(state)):
+
+            value = state[i]
+            
+            if(value == 0 or value == "0" ):
+                value = "*"
+                
+            if((i + 1) % 3 == 0 ):
+                print(value)
+
+            else:
+                print(value, end = " ")
     
+    #----------------------------        Check Solvability  ---------------------------#
     def get_inversion_count(self, state):
         inv_count = 0
 
@@ -133,28 +164,7 @@ class EightPuzzle():
 
     def is_solvable(self, state):
         return self.get_inversion_count_merge(state) % 2 == 0
-    
-    def generate_random_puzzle(self):
-        state = [0,1,2,3,4,5,6,7, 8, 9]
-        while (True):
-            random.shuffle(state)
-            if (self.is_solvable(state)):
-                return state
 
-    def display(self, state):
-        for i in range(len(state)):
-
-            value = state[i]
-            
-            if(value == 0 or value == "0" ):
-                value = "*"
-                
-            if((i + 1) % 3 == 0 ):
-                print(value)
-
-            else:
-                print(value, end = " ")
-    
     ##Assume all cost are one between any state from a valid action
     def path_cost(self, current_cost, state, action, new_state):
         return current_cost + 1
