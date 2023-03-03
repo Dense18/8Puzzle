@@ -1,5 +1,5 @@
 # 8Puzzle
-8Puzzle game solver Supporting using several algorithms
+8Puzzle game solver using pygame
 
 # Required installation
 ```python
