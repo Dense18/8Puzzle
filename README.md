@@ -21,6 +21,8 @@ If you can't solve it, press the "s" button and the program will solve it for yo
 
 Once the puzzle is solved, press the "r" button to create a new random puzzle. Don't worry, the program will give out a **solvable** puzzle!
 
+---
+
 ## Additional information
 The program uses an A-star search algorithm to solve the puzzle. The heuristic function available are 
 - misplaced tiles
